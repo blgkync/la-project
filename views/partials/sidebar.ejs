@@ -76,14 +76,17 @@
     </a>
   </nav>
 
-  <!-- Bottom -->
+  <!-- Bottom - User Info -->
   <div class="p-4 border-t border-dark-700/50">
     <div class="flex items-center gap-3 px-2">
-      <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-xs font-bold">DT</div>
+      <div class="w-8 h-8 rounded-lg bg-gradient-to-br <%= user && user.role === 'admin' ? 'from-amber-500 to-orange-600' : 'from-blue-500 to-purple-600' %> flex items-center justify-center text-white text-xs font-bold"><%= user ? user.display_name.charAt(0).toUpperCase() : 'U' %></div>
       <div class="flex-1 min-w-0">
-        <p class="text-xs font-medium text-white truncate">DeepTech Lab</p>
-        <p class="text-[10px] text-dark-400">ArGe Ekibi</p>
+        <p class="text-xs font-medium text-white truncate"><%= user ? user.display_name : '' %></p>
+        <p class="text-[10px] text-dark-400"><%= user && user.role === 'admin' ? 'Yonetici' : 'Ekip Uyesi' %></p>
       </div>
+      <a href="/logout" title="Cikis Yap" class="p-1.5 rounded-lg hover:bg-dark-800 transition-colors group">
+        <svg class="w-4 h-4 text-dark-400 group-hover:text-red-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+      </a>
     </div>
   </div>
 </aside>

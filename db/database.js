@@ -21,6 +21,15 @@ function initDB() {
   const db = getDB();
 
   db.exec(`
+    CREATE TABLE IF NOT EXISTS users (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      username TEXT UNIQUE NOT NULL,
+      password_hash TEXT NOT NULL,
+      display_name TEXT NOT NULL,
+      role TEXT NOT NULL DEFAULT 'user' CHECK(role IN ('admin','user')),
+      created_at TEXT DEFAULT (datetime('now','localtime'))
+    );
+
     CREATE TABLE IF NOT EXISTS projects (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       name TEXT NOT NULL,
@@ -241,6 +250,23 @@ function initDB() {
       sort_order INTEGER DEFAULT 0
     );
   `);
+
+  // Seed users if empty
+  const userCount = db.prepare('SELECT COUNT(*) as c FROM users').get();
+  if (userCount.c === 0) {
+    console.log('  Kullanicilar olusturuluyor...');
+    const bcrypt = require('bcryptjs');
+    const hash = bcrypt.hashSync('admin123', 10);
+    const userHash1 = bcrypt.hashSync('user123', 10);
+    const userHash2 = bcrypt.hashSync('user123', 10);
+    const userHash3 = bcrypt.hashSync('user123', 10);
+    const insertUser = db.prepare('INSERT INTO users (username, password_hash, display_name, role) VALUES (?, ?, ?, ?)');
+    insertUser.run('admin', hash, 'Admin', 'admin');
+    insertUser.run('kullanici1', userHash1, 'Kullanici 1', 'user');
+    insertUser.run('kullanici2', userHash2, 'Kullanici 2', 'user');
+    insertUser.run('kullanici3', userHash3, 'Kullanici 3', 'user');
+    console.log('  4 kullanici olusturuldu (admin + 3 ekip uyesi)');
+  }
 
   // Seed if tables are empty
   const count = db.prepare('SELECT COUNT(*) as c FROM projects').get();

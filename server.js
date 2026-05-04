@@ -4,8 +4,10 @@ const path = require('path');
 const morgan = require('morgan');
 const compression = require('compression');
 const helmet = require('helmet');
+const session = require('express-session');
 
 const { initDB } = require('./db/database');
+const { requireAuth, readOnly } = require('./middleware/auth');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -22,12 +24,35 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
+// --- Session ---
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'la-project-secret-key-2026',
+  resave: false,
+  saveUninitialized: false,
+  cookie: { maxAge: 24 * 60 * 60 * 1000, httpOnly: true, sameSite: 'lax' }
+}));
+
 // --- View Engine ---
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
 // --- Initialize Database ---
 initDB();
+
+// --- Auth Routes (public) ---
+app.use('/', require('./routes/auth'));
+
+// --- Protected Routes ---
+app.use(requireAuth);
+
+// --- Pass user to all views ---
+app.use((req, res, next) => {
+  res.locals.user = req.session.user;
+  next();
+});
+
+// --- Read-only for non-admin on write APIs ---
+app.use('/api/v1', readOnly);
 
 // --- Routes ---
 app.use('/', require('./routes/dashboard'));
@@ -61,7 +86,8 @@ app.use((req, res) => {
   res.status(404).render('layout', {
     title: '404 - Sayfa Bulunamadi',
     page: 'partials/404',
-    currentPath: req.path
+    currentPath: req.path,
+    user: req.session ? req.session.user : null
   });
 });
 
@@ -80,7 +106,8 @@ app.use((err, req, res, next) => {
     title: 'Hata',
     page: 'partials/error',
     currentPath: req.path,
-    error: { statusCode, message: err.message }
+    error: { statusCode, message: err.message },
+    user: req.session ? req.session.user : null
   });
 });
 
