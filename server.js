@@ -7,7 +7,7 @@ const helmet = require('helmet');
 const session = require('express-session');
 
 const { initDB } = require('./db/database');
-const { requireAuth, readOnly } = require('./middleware/auth');
+const { requireAuth, injectProjectScope } = require('./middleware/auth');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -51,8 +51,8 @@ app.use((req, res, next) => {
   next();
 });
 
-// --- Read-only for non-admin on write APIs ---
-app.use('/api/v1', readOnly);
+// --- Inject project scope for filtering ---
+app.use(injectProjectScope);
 
 // --- Routes ---
 app.use('/', require('./routes/dashboard'));
@@ -65,6 +65,7 @@ app.use('/equipment', require('./routes/equipment'));
 app.use('/reports', require('./routes/reports'));
 app.use('/formulations', require('./routes/formulations'));
 app.use('/materials-library', require('./routes/materials-library'));
+app.use('/admin', require('./routes/admin'));
 
 // --- API Routes ---
 app.use('/api/v1/projects', require('./routes/api/projects'));
@@ -80,6 +81,7 @@ app.use('/api/v1/attachments', require('./routes/api/attachments'));
 app.use('/api/v1/materials-library', require('./routes/api/materials-library'));
 app.use('/api/v1/formulations', require('./routes/api/formulations'));
 app.use('/api/v1/comparisons', require('./routes/api/comparisons'));
+app.use('/api/v1/users', require('./routes/api/users'));
 
 // --- 404 Handler ---
 app.use((req, res) => {

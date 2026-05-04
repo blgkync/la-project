@@ -6,6 +6,7 @@ const WorkPackage = require('../../models/WorkPackage');
 const LabEntry = require('../../models/LabEntry');
 const Equipment = require('../../models/Equipment');
 const Material = require('../../models/Material');
+const { filterByProject } = require('../../middleware/auth');
 
 router.get('/summary', (req, res, next) => {
   try {
@@ -13,18 +14,26 @@ router.get('/summary', (req, res, next) => {
     const filters = projectId ? { project_id: projectId } : {};
 
     const expByStatus = Experiment.countByStatus(projectId);
-    const allExperiments = Experiment.findAll(filters);
-    const todayEvents = CalendarEvent.getToday(projectId);
-    const upcomingEvents = CalendarEvent.getUpcoming(5, projectId);
+    let allExperiments = Experiment.findAll(filters);
+    allExperiments = filterByProject(allExperiments, req.projectScope);
+    let todayEvents = CalendarEvent.getToday(projectId);
+    todayEvents = filterByProject(todayEvents, req.projectScope);
+    let upcomingEvents = CalendarEvent.getUpcoming(5, projectId);
+    upcomingEvents = filterByProject(upcomingEvents, req.projectScope);
     const wpProgress = WorkPackage.getOverallProgress(projectId);
-    const wpAll = WorkPackage.findAll(filters);
-    const recentEntries = LabEntry.getRecent(5, projectId);
+    let wpAll = WorkPackage.findAll(filters);
+    wpAll = filterByProject(wpAll, req.projectScope);
+    let recentEntries = LabEntry.getRecent(5, projectId);
+    recentEntries = filterByProject(recentEntries, req.projectScope);
     const equipStatus = Equipment.countByStatus(projectId);
-    const lowStock = Material.getLowStock(projectId);
+    let lowStock = Material.getLowStock(projectId || null);
+    lowStock = filterByProject(lowStock, req.projectScope);
     const maintenanceDue = Equipment.getMaintenanceDue(projectId);
 
-    // Projects overview
-    const projects = Project.findAll();
+    let projects = Project.findAll();
+    if (req.projectScope) {
+      projects = projects.filter(p => req.projectScope.includes(p.id));
+    }
     const projectsWithStats = projects.map(p => ({
       ...p,
       stats: Project.getStats(p.id)

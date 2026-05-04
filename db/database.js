@@ -30,6 +30,14 @@ function initDB() {
       created_at TEXT DEFAULT (datetime('now','localtime'))
     );
 
+    CREATE TABLE IF NOT EXISTS project_assignments (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      project_id INTEGER NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+      created_at TEXT DEFAULT (datetime('now','localtime')),
+      UNIQUE(user_id, project_id)
+    );
+
     CREATE TABLE IF NOT EXISTS projects (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       name TEXT NOT NULL,
@@ -266,6 +274,7 @@ function initDB() {
     insertUser.run('kullanici2', userHash2, 'Kullanici 2', 'user');
     insertUser.run('kullanici3', userHash3, 'Kullanici 3', 'user');
     console.log('  4 kullanici olusturuldu (admin + 3 ekip uyesi)');
+
   }
 
   // Seed if tables are empty
@@ -273,6 +282,21 @@ function initDB() {
   if (count.c === 0) {
     console.log('  Veritabani bos, seed verileri yukleniyor...');
     require('./seed');
+  }
+
+  // Seed project assignments if empty
+  const assignCount = db.prepare('SELECT COUNT(*) as c FROM project_assignments').get();
+  if (assignCount.c === 0) {
+    const projects = db.prepare('SELECT id FROM projects').all();
+    const users = db.prepare('SELECT id FROM users').all();
+    if (projects.length > 0 && users.length > 0) {
+      const insertAssign = db.prepare('INSERT OR IGNORE INTO project_assignments (user_id, project_id) VALUES (?, ?)');
+      for (const p of projects) insertAssign.run(1, p.id);
+      for (const p of projects) insertAssign.run(2, p.id);
+      if (projects.length > 1) insertAssign.run(3, projects[1].id);
+      if (projects.length > 2) insertAssign.run(4, projects[2].id);
+      console.log('  Proje atamalari yapildi');
+    }
   }
 
   console.log('  Veritabani hazir.');

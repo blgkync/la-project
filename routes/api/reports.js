@@ -5,6 +5,7 @@ const LabEntry = require('../../models/LabEntry');
 const CalendarEvent = require('../../models/CalendarEvent');
 const Equipment = require('../../models/Equipment');
 const Material = require('../../models/Material');
+const { filterByProject } = require('../../middleware/auth');
 
 router.get('/generate', (req, res, next) => {
   try {
@@ -14,19 +15,25 @@ router.get('/generate', (req, res, next) => {
     if (start_date) filters.start_date = start_date;
     if (end_date) filters.end_date = end_date;
 
-    const experiments = Experiment.findAll(filters);
-    const workPackages = WorkPackage.findAll(project_id ? { project_id } : {});
-    const entries = LabEntry.findAll(filters);
+    let experiments = Experiment.findAll(filters);
+    experiments = filterByProject(experiments, req.projectScope);
+    let workPackages = WorkPackage.findAll(project_id ? { project_id } : {});
+    workPackages = filterByProject(workPackages, req.projectScope);
+    let entries = LabEntry.findAll(filters);
+    entries = filterByProject(entries, req.projectScope);
 
     const calFilters = {};
     if (project_id) calFilters.project_id = project_id;
     if (start_date) calFilters.start = start_date;
     if (end_date) calFilters.end = end_date;
-    const events = CalendarEvent.findAll(calFilters);
+    let events = CalendarEvent.findAll(calFilters);
+    events = filterByProject(events, req.projectScope);
 
     const eqFilters = project_id ? { project_id } : {};
-    const equipmentAll = Equipment.findAll(eqFilters);
-    const lowStock = Material.getLowStock(project_id || null);
+    let equipmentAll = Equipment.findAll(eqFilters);
+    equipmentAll = filterByProject(equipmentAll, req.projectScope);
+    let lowStock = Material.getLowStock(project_id || null);
+    lowStock = filterByProject(lowStock, req.projectScope);
 
     const expByStatus = {};
     experiments.forEach(e => { expByStatus[e.status] = (expByStatus[e.status] || 0) + 1; });

@@ -376,10 +376,9 @@ document.addEventListener('keydown', (e) => {
   if (e.key === 'ArrowRight') LA.lightboxNext();
 });
 
-// Hide write-actions for non-admin users
+// Expose user info for role-based UI
 document.addEventListener('DOMContentLoaded', () => {
   if (window.LA_USER && window.LA_USER.role !== 'admin') {
     document.querySelectorAll('[data-admin-only]').forEach(el => el.style.display = 'none');
-    document.querySelectorAll('button[onclick*="delete"], button[onclick*="Delete"], button[onclick*="sil"], button[onclick*="Sil"]').forEach(el => el.style.display = 'none');
   }
 });
