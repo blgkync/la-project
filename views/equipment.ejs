@@ -1,0 +1,124 @@
+<!-- Header -->
+<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+  <div>
+    <h1 class="text-xl font-bold text-white">Ekipman & Malzeme</h1>
+    <p class="text-sm text-dark-400 mt-1">Lab envanter yonetimi</p>
+  </div>
+  <div class="flex gap-2">
+    <button onclick="EqPage.showEquipModal()" class="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 text-white text-sm font-medium shadow-lg shadow-blue-500/20 hover:shadow-blue-500/40 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+      Ekipman Ekle
+    </button>
+    <button onclick="EqPage.showMatModal()" class="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-accent-600 to-teal-500 text-white text-sm font-medium shadow-lg shadow-accent-500/20 hover:shadow-accent-500/40 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+      Malzeme Ekle
+    </button>
+  </div>
+</div>
+
+<!-- Tabs -->
+<div class="flex gap-1 bg-dark-800 rounded-lg p-0.5 border border-dark-700 w-fit mb-6">
+  <button onclick="EqPage.setTab('equipment')" id="tab-equipment" class="px-4 py-2 rounded-md text-sm font-medium transition-colors bg-accent-500/10 text-accent-400">Ekipman</button>
+  <button onclick="EqPage.setTab('materials')" id="tab-materials" class="px-4 py-2 rounded-md text-sm font-medium transition-colors text-dark-400 hover:text-white">Malzeme</button>
+</div>
+
+<!-- Equipment Section -->
+<div id="equipment-section">
+  <div class="flex flex-wrap gap-3 mb-4">
+    <select id="eq-filter-status" class="px-3 py-2 rounded-xl bg-dark-800 border border-dark-700 text-sm text-gray-300 focus:outline-none focus:border-accent-500/50">
+      <option value="">Tum Durumlar</option>
+      <option value="available">Kullanilabilir</option>
+      <option value="in_use">Kullanimda</option>
+      <option value="maintenance">Bakimda</option>
+      <option value="out_of_order">Arızalı</option>
+    </select>
+    <div class="relative flex-1 min-w-[200px]">
+      <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-dark-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+      <input type="text" id="eq-search" placeholder="Ekipman ara..." class="w-full pl-9 pr-3 py-2 rounded-xl bg-dark-800 border border-dark-700 text-sm text-gray-300 placeholder-dark-400 focus:outline-none focus:border-accent-500/50">
+    </div>
+  </div>
+  <div id="equipment-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+    <div class="animate-pulse space-y-4 col-span-full">
+      <div class="h-40 bg-dark-800 rounded-2xl"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Materials Section -->
+<div id="materials-section" class="hidden">
+  <div class="flex flex-wrap gap-3 mb-4">
+    <button onclick="EqPage.loadMaterials({low_stock:'1'})" id="mat-low-stock-btn" class="px-3 py-2 rounded-xl bg-dark-800 border border-dark-700 text-sm text-amber-400 hover:bg-amber-500/10 transition-colors">Dusuk Stok</button>
+    <div class="relative flex-1 min-w-[200px]">
+      <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-dark-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+      <input type="text" id="mat-search" placeholder="Malzeme ara..." class="w-full pl-9 pr-3 py-2 rounded-xl bg-dark-800 border border-dark-700 text-sm text-gray-300 placeholder-dark-400 focus:outline-none focus:border-accent-500/50">
+    </div>
+  </div>
+  <div id="materials-table-wrapper" class="rounded-2xl bg-dark-900/80 border border-dark-700/50 overflow-hidden">
+    <div class="animate-pulse p-6"><div class="h-40 bg-dark-800 rounded-xl"></div></div>
+  </div>
+</div>
+
+<!-- Equipment Modal -->
+<div id="equip-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60 backdrop-blur-sm overflow-y-auto">
+  <div class="bg-dark-900 border border-dark-700 rounded-2xl shadow-2xl w-full max-w-lg mx-4 my-8 transform scale-95 opacity-0 transition-all duration-200" id="equip-modal-box">
+    <div class="flex items-center justify-between p-5 border-b border-dark-700/50">
+      <h3 id="equip-modal-title" class="text-lg font-semibold text-white">Yeni Ekipman</h3>
+      <button onclick="EqPage.closeEquipModal()" class="p-1.5 rounded-lg hover:bg-dark-800 transition-colors"><svg class="w-5 h-5 text-dark-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
+    </div>
+    <form id="equip-form" class="p-5 space-y-4 max-h-[70vh] overflow-y-auto">
+      <input type="hidden" id="equip-id">
+      <div><label class="block text-xs font-medium text-dark-300 mb-1.5">Proje</label><select id="equip-project" class="w-full px-3 py-2 rounded-xl bg-dark-800 border border-dark-700 text-sm text-white focus:outline-none focus:border-accent-500/50"><option value="">-- Proje Sec --</option></select></div>
+      <div><label class="block text-xs font-medium text-dark-300 mb-1.5">Ad *</label><input type="text" id="equip-name" required class="w-full px-3 py-2 rounded-xl bg-dark-800 border border-dark-700 text-sm text-white focus:outline-none focus:border-accent-500/50"></div>
+      <div class="grid grid-cols-2 gap-4">
+        <div><label class="block text-xs font-medium text-dark-300 mb-1.5">Model</label><input type="text" id="equip-model" class="w-full px-3 py-2 rounded-xl bg-dark-800 border border-dark-700 text-sm text-white focus:outline-none focus:border-accent-500/50"></div>
+        <div><label class="block text-xs font-medium text-dark-300 mb-1.5">Seri No</label><input type="text" id="equip-serial" class="w-full px-3 py-2 rounded-xl bg-dark-800 border border-dark-700 text-sm text-white focus:outline-none focus:border-accent-500/50"></div>
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div><label class="block text-xs font-medium text-dark-300 mb-1.5">Konum</label><input type="text" id="equip-location" class="w-full px-3 py-2 rounded-xl bg-dark-800 border border-dark-700 text-sm text-white focus:outline-none focus:border-accent-500/50"></div>
+        <div><label class="block text-xs font-medium text-dark-300 mb-1.5">Durum</label>
+          <select id="equip-status" class="w-full px-3 py-2 rounded-xl bg-dark-800 border border-dark-700 text-sm text-white focus:outline-none focus:border-accent-500/50">
+            <option value="available">Kullanilabilir</option><option value="in_use">Kullanimda</option><option value="maintenance">Bakimda</option><option value="out_of_order">Arizali</option>
+          </select>
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div><label class="block text-xs font-medium text-dark-300 mb-1.5">Son Kalibrasyon</label><input type="date" id="equip-calibration" class="w-full px-3 py-2 rounded-xl bg-dark-800 border border-dark-700 text-sm text-white focus:outline-none focus:border-accent-500/50"></div>
+        <div><label class="block text-xs font-medium text-dark-300 mb-1.5">Sonraki Bakim</label><input type="date" id="equip-maintenance" class="w-full px-3 py-2 rounded-xl bg-dark-800 border border-dark-700 text-sm text-white focus:outline-none focus:border-accent-500/50"></div>
+      </div>
+      <div><label class="block text-xs font-medium text-dark-300 mb-1.5">Notlar</label><textarea id="equip-notes" rows="2" class="w-full px-3 py-2 rounded-xl bg-dark-800 border border-dark-700 text-sm text-white focus:outline-none focus:border-accent-500/50 resize-none"></textarea></div>
+      <div class="flex gap-3 pt-2">
+        <button type="submit" class="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 text-white text-sm font-medium transition-all">Kaydet</button>
+        <button type="button" onclick="EqPage.closeEquipModal()" class="px-6 py-2.5 rounded-xl bg-dark-800 border border-dark-700 text-gray-300 text-sm hover:bg-dark-700 transition-colors">Iptal</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Material Modal -->
+<div id="mat-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60 backdrop-blur-sm overflow-y-auto">
+  <div class="bg-dark-900 border border-dark-700 rounded-2xl shadow-2xl w-full max-w-lg mx-4 my-8 transform scale-95 opacity-0 transition-all duration-200" id="mat-modal-box">
+    <div class="flex items-center justify-between p-5 border-b border-dark-700/50">
+      <h3 id="mat-modal-title" class="text-lg font-semibold text-white">Yeni Malzeme</h3>
+      <button onclick="EqPage.closeMatModal()" class="p-1.5 rounded-lg hover:bg-dark-800 transition-colors"><svg class="w-5 h-5 text-dark-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
+    </div>
+    <form id="mat-form" class="p-5 space-y-4">
+      <input type="hidden" id="mat-id">
+      <div><label class="block text-xs font-medium text-dark-300 mb-1.5">Proje</label><select id="mat-project" class="w-full px-3 py-2 rounded-xl bg-dark-800 border border-dark-700 text-sm text-white focus:outline-none focus:border-accent-500/50"><option value="">-- Proje Sec --</option></select></div>
+      <div><label class="block text-xs font-medium text-dark-300 mb-1.5">Ad *</label><input type="text" id="mat-name" required class="w-full px-3 py-2 rounded-xl bg-dark-800 border border-dark-700 text-sm text-white focus:outline-none focus:border-accent-500/50"></div>
+      <div class="grid grid-cols-3 gap-4">
+        <div><label class="block text-xs font-medium text-dark-300 mb-1.5">Miktar</label><input type="number" id="mat-quantity" min="0" step="0.1" value="0" class="w-full px-3 py-2 rounded-xl bg-dark-800 border border-dark-700 text-sm text-white focus:outline-none focus:border-accent-500/50"></div>
+        <div><label class="block text-xs font-medium text-dark-300 mb-1.5">Birim</label><input type="text" id="mat-unit" value="adet" class="w-full px-3 py-2 rounded-xl bg-dark-800 border border-dark-700 text-sm text-white focus:outline-none focus:border-accent-500/50"></div>
+        <div><label class="block text-xs font-medium text-dark-300 mb-1.5">Min Esik</label><input type="number" id="mat-threshold" min="0" step="0.1" value="0" class="w-full px-3 py-2 rounded-xl bg-dark-800 border border-dark-700 text-sm text-white focus:outline-none focus:border-accent-500/50"></div>
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div><label class="block text-xs font-medium text-dark-300 mb-1.5">Tedarikci</label><input type="text" id="mat-supplier" class="w-full px-3 py-2 rounded-xl bg-dark-800 border border-dark-700 text-sm text-white focus:outline-none focus:border-accent-500/50"></div>
+        <div><label class="block text-xs font-medium text-dark-300 mb-1.5">Konum</label><input type="text" id="mat-location" class="w-full px-3 py-2 rounded-xl bg-dark-800 border border-dark-700 text-sm text-white focus:outline-none focus:border-accent-500/50"></div>
+      </div>
+      <div><label class="block text-xs font-medium text-dark-300 mb-1.5">Notlar</label><textarea id="mat-notes" rows="2" class="w-full px-3 py-2 rounded-xl bg-dark-800 border border-dark-700 text-sm text-white focus:outline-none focus:border-accent-500/50 resize-none"></textarea></div>
+      <div class="flex gap-3 pt-2">
+        <button type="submit" class="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-accent-600 to-teal-500 text-white text-sm font-medium transition-all">Kaydet</button>
+        <button type="button" onclick="EqPage.closeMatModal()" class="px-6 py-2.5 rounded-xl bg-dark-800 border border-dark-700 text-gray-300 text-sm hover:bg-dark-700 transition-colors">Iptal</button>
+      </div>
+    </form>
+  </div>
+</div>

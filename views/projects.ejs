@@ -1,0 +1,136 @@
+<!-- Header -->
+<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+  <div>
+    <h1 class="text-xl font-bold text-white">Projeler</h1>
+    <p class="text-sm text-dark-400 mt-1">TUBITAK ve lab projelerinizi yonetin</p>
+  </div>
+  <button onclick="PrjPage.showCreateModal()" class="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-accent-600 to-teal-500 text-white text-sm font-medium shadow-lg shadow-accent-500/20 hover:shadow-accent-500/40 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200">
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+    Yeni Proje
+  </button>
+</div>
+
+<!-- Filters -->
+<div class="flex flex-wrap gap-3 mb-6">
+  <select id="prj-filter-type" class="px-3 py-2 rounded-xl bg-dark-800 border border-dark-700 text-sm text-gray-300 focus:outline-none focus:border-accent-500/50">
+    <option value="">Tum Turler</option>
+    <option value="tubitak">TUBITAK</option>
+    <option value="lab">Lab</option>
+    <option value="arge">ArGe</option>
+    <option value="other">Diger</option>
+  </select>
+  <select id="prj-filter-status" class="px-3 py-2 rounded-xl bg-dark-800 border border-dark-700 text-sm text-gray-300 focus:outline-none focus:border-accent-500/50">
+    <option value="">Tum Durumlar</option>
+    <option value="active">Aktif</option>
+    <option value="completed">Tamamlandi</option>
+    <option value="on_hold">Beklemede</option>
+    <option value="cancelled">Iptal</option>
+  </select>
+  <div class="relative flex-1 min-w-[200px]">
+    <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-dark-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+    <input type="text" id="prj-filter-search" placeholder="Proje ara..." class="w-full pl-9 pr-3 py-2 rounded-xl bg-dark-800 border border-dark-700 text-sm text-gray-300 placeholder-dark-400 focus:outline-none focus:border-accent-500/50">
+  </div>
+</div>
+
+<!-- Project Cards Grid -->
+<div id="projects-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+  <div class="animate-pulse space-y-4 col-span-full">
+    <div class="h-56 bg-dark-800 rounded-2xl"></div>
+    <div class="h-56 bg-dark-800 rounded-2xl"></div>
+  </div>
+</div>
+
+<!-- Create/Edit Modal -->
+<div id="project-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60 backdrop-blur-sm overflow-y-auto">
+  <div class="bg-dark-900 border border-dark-700 rounded-2xl shadow-2xl w-full max-w-2xl mx-4 my-8 transform scale-95 opacity-0 transition-all duration-200" id="project-modal-box">
+    <div class="flex items-center justify-between p-5 border-b border-dark-700/50">
+      <h3 id="project-modal-title" class="text-lg font-semibold text-white">Yeni Proje</h3>
+      <button onclick="PrjPage.closeModal()" class="p-1.5 rounded-lg hover:bg-dark-800 transition-colors"><svg class="w-5 h-5 text-dark-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
+    </div>
+    <form id="project-form" class="p-5 space-y-4 max-h-[70vh] overflow-y-auto">
+      <input type="hidden" id="prj-id">
+      <div class="grid grid-cols-2 gap-4">
+        <div class="col-span-2">
+          <label class="block text-xs font-medium text-dark-300 mb-1.5">Proje Adi *</label>
+          <input type="text" id="prj-name" required class="w-full px-3 py-2 rounded-xl bg-dark-800 border border-dark-700 text-sm text-white focus:outline-none focus:border-accent-500/50">
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-xs font-medium text-dark-300 mb-1.5">Proje Kodu *</label>
+          <input type="text" id="prj-code" required placeholder="TUBITAK-1001-2024" class="w-full px-3 py-2 rounded-xl bg-dark-800 border border-dark-700 text-sm text-white placeholder-dark-500 focus:outline-none focus:border-accent-500/50">
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-dark-300 mb-1.5">Tur</label>
+          <select id="prj-type" class="w-full px-3 py-2 rounded-xl bg-dark-800 border border-dark-700 text-sm text-white focus:outline-none focus:border-accent-500/50">
+            <option value="tubitak">TUBITAK</option>
+            <option value="lab">Lab</option>
+            <option value="arge">ArGe</option>
+            <option value="other">Diger</option>
+          </select>
+        </div>
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-dark-300 mb-1.5">Aciklama</label>
+        <textarea id="prj-description" rows="2" class="w-full px-3 py-2 rounded-xl bg-dark-800 border border-dark-700 text-sm text-white focus:outline-none focus:border-accent-500/50 resize-none"></textarea>
+      </div>
+      <div class="grid grid-cols-3 gap-4">
+        <div>
+          <label class="block text-xs font-medium text-dark-300 mb-1.5">Durum</label>
+          <select id="prj-status" class="w-full px-3 py-2 rounded-xl bg-dark-800 border border-dark-700 text-sm text-white focus:outline-none focus:border-accent-500/50">
+            <option value="active">Aktif</option>
+            <option value="completed">Tamamlandi</option>
+            <option value="on_hold">Beklemede</option>
+            <option value="cancelled">Iptal</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-dark-300 mb-1.5">Program</label>
+          <input type="text" id="prj-program" placeholder="1001, 1501, TEYDEB..." class="w-full px-3 py-2 rounded-xl bg-dark-800 border border-dark-700 text-sm text-white placeholder-dark-500 focus:outline-none focus:border-accent-500/50">
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-dark-300 mb-1.5">Renk</label>
+          <input type="color" id="prj-color" value="#06b6d4" class="w-full h-[38px] px-1 py-1 rounded-xl bg-dark-800 border border-dark-700 cursor-pointer">
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-xs font-medium text-dark-300 mb-1.5">Baslangic Tarihi</label>
+          <input type="date" id="prj-start" class="w-full px-3 py-2 rounded-xl bg-dark-800 border border-dark-700 text-sm text-white focus:outline-none focus:border-accent-500/50">
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-dark-300 mb-1.5">Bitis Tarihi</label>
+          <input type="date" id="prj-end" class="w-full px-3 py-2 rounded-xl bg-dark-800 border border-dark-700 text-sm text-white focus:outline-none focus:border-accent-500/50">
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-xs font-medium text-dark-300 mb-1.5">Butce (TL)</label>
+          <input type="number" id="prj-budget" min="0" step="1000" value="0" class="w-full px-3 py-2 rounded-xl bg-dark-800 border border-dark-700 text-sm text-white focus:outline-none focus:border-accent-500/50">
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-dark-300 mb-1.5">Harcanan (TL)</label>
+          <input type="number" id="prj-spent" min="0" step="1000" value="0" class="w-full px-3 py-2 rounded-xl bg-dark-800 border border-dark-700 text-sm text-white focus:outline-none focus:border-accent-500/50">
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-xs font-medium text-dark-300 mb-1.5">Proje Yoneticisi (PI)</label>
+          <input type="text" id="prj-pi" class="w-full px-3 py-2 rounded-xl bg-dark-800 border border-dark-700 text-sm text-white focus:outline-none focus:border-accent-500/50">
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-dark-300 mb-1.5">Kurum</label>
+          <input type="text" id="prj-institution" class="w-full px-3 py-2 rounded-xl bg-dark-800 border border-dark-700 text-sm text-white focus:outline-none focus:border-accent-500/50">
+        </div>
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-dark-300 mb-1.5">Etiketler (virgul ile)</label>
+        <input type="text" id="prj-tags" placeholder="kompozit, nanolif, polimer" class="w-full px-3 py-2 rounded-xl bg-dark-800 border border-dark-700 text-sm text-white placeholder-dark-500 focus:outline-none focus:border-accent-500/50">
+      </div>
+      <div class="flex gap-3 pt-2">
+        <button type="submit" class="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-accent-600 to-teal-500 text-white text-sm font-medium hover:shadow-lg hover:shadow-accent-500/20 transition-all">Kaydet</button>
+        <button type="button" onclick="PrjPage.closeModal()" class="px-6 py-2.5 rounded-xl bg-dark-800 border border-dark-700 text-gray-300 text-sm hover:bg-dark-700 transition-colors">Iptal</button>
+      </div>
+    </form>
+  </div>
+</div>

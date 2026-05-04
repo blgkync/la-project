@@ -1,0 +1,159 @@
+<!-- Header -->
+<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+  <div>
+    <h1 class="text-xl font-bold text-white">Deneyler</h1>
+    <p class="text-sm text-dark-400 mt-1">Tum deney calismalarini yonetin ve takip edin</p>
+  </div>
+  <div class="flex gap-2">
+    <button id="view-list-btn" class="p-2 rounded-lg bg-accent-500/10 border border-accent-500/20 text-accent-400 transition-colors" title="Liste Gorunumu">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
+    </button>
+    <button id="view-kanban-btn" class="p-2 rounded-lg bg-dark-800 border border-dark-700 text-dark-400 hover:text-white transition-colors" title="Kanban Gorunumu">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"/></svg>
+    </button>
+    <button onclick="ExpPage.showCreateModal()" class="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-accent-600 to-teal-500 text-white text-sm font-medium shadow-lg shadow-accent-500/20 hover:shadow-accent-500/40 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+      Yeni Deney
+    </button>
+  </div>
+</div>
+
+<!-- Filters -->
+<div class="flex flex-wrap gap-3 mb-6">
+  <select id="filter-status" class="px-3 py-2 rounded-xl bg-dark-800 border border-dark-700 text-sm text-gray-300 focus:outline-none focus:border-accent-500/50">
+    <option value="">Tum Durumlar</option>
+    <option value="planned">Planli</option>
+    <option value="in_progress">Devam Ediyor</option>
+    <option value="completed">Tamamlandi</option>
+    <option value="failed">Basarisiz</option>
+    <option value="on_hold">Beklemede</option>
+  </select>
+  <select id="filter-priority" class="px-3 py-2 rounded-xl bg-dark-800 border border-dark-700 text-sm text-gray-300 focus:outline-none focus:border-accent-500/50">
+    <option value="">Tum Oncelikler</option>
+    <option value="low">Dusuk</option>
+    <option value="medium">Orta</option>
+    <option value="high">Yuksek</option>
+    <option value="critical">Kritik</option>
+  </select>
+  <div class="relative flex-1 min-w-[200px]">
+    <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-dark-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+    <input type="text" id="filter-search" placeholder="Deney ara..." class="w-full pl-9 pr-3 py-2 rounded-xl bg-dark-800 border border-dark-700 text-sm text-gray-300 placeholder-dark-400 focus:outline-none focus:border-accent-500/50">
+  </div>
+</div>
+
+<!-- List View -->
+<div id="experiments-list-view" class="space-y-3">
+  <div class="animate-pulse space-y-3">
+    <div class="h-28 bg-dark-800 rounded-2xl"></div>
+    <div class="h-28 bg-dark-800 rounded-2xl"></div>
+    <div class="h-28 bg-dark-800 rounded-2xl"></div>
+  </div>
+</div>
+
+<!-- Kanban View -->
+<div id="experiments-kanban-view" class="hidden overflow-x-auto">
+  <div class="flex gap-4 min-w-[1000px] pb-4">
+    <div class="flex-1 min-w-[220px]" data-status="planned">
+      <div class="flex items-center gap-2 mb-3 px-1"><span class="w-2.5 h-2.5 rounded-full bg-gray-400"></span><h4 class="text-sm font-semibold text-white">Planli</h4><span id="kanban-count-planned" class="text-xs text-dark-400 bg-dark-800 px-2 py-0.5 rounded-full">0</span></div>
+      <div id="kanban-planned" class="space-y-3 min-h-[200px] p-2 rounded-xl bg-dark-800/30 border border-dashed border-dark-700/50"></div>
+    </div>
+    <div class="flex-1 min-w-[220px]" data-status="in_progress">
+      <div class="flex items-center gap-2 mb-3 px-1"><span class="w-2.5 h-2.5 rounded-full bg-blue-400"></span><h4 class="text-sm font-semibold text-white">Devam Ediyor</h4><span id="kanban-count-in_progress" class="text-xs text-dark-400 bg-dark-800 px-2 py-0.5 rounded-full">0</span></div>
+      <div id="kanban-in_progress" class="space-y-3 min-h-[200px] p-2 rounded-xl bg-dark-800/30 border border-dashed border-dark-700/50"></div>
+    </div>
+    <div class="flex-1 min-w-[220px]" data-status="completed">
+      <div class="flex items-center gap-2 mb-3 px-1"><span class="w-2.5 h-2.5 rounded-full bg-green-400"></span><h4 class="text-sm font-semibold text-white">Tamamlandi</h4><span id="kanban-count-completed" class="text-xs text-dark-400 bg-dark-800 px-2 py-0.5 rounded-full">0</span></div>
+      <div id="kanban-completed" class="space-y-3 min-h-[200px] p-2 rounded-xl bg-dark-800/30 border border-dashed border-dark-700/50"></div>
+    </div>
+    <div class="flex-1 min-w-[220px]" data-status="failed">
+      <div class="flex items-center gap-2 mb-3 px-1"><span class="w-2.5 h-2.5 rounded-full bg-red-400"></span><h4 class="text-sm font-semibold text-white">Basarisiz</h4><span id="kanban-count-failed" class="text-xs text-dark-400 bg-dark-800 px-2 py-0.5 rounded-full">0</span></div>
+      <div id="kanban-failed" class="space-y-3 min-h-[200px] p-2 rounded-xl bg-dark-800/30 border border-dashed border-dark-700/50"></div>
+    </div>
+    <div class="flex-1 min-w-[220px]" data-status="on_hold">
+      <div class="flex items-center gap-2 mb-3 px-1"><span class="w-2.5 h-2.5 rounded-full bg-yellow-400"></span><h4 class="text-sm font-semibold text-white">Beklemede</h4><span id="kanban-count-on_hold" class="text-xs text-dark-400 bg-dark-800 px-2 py-0.5 rounded-full">0</span></div>
+      <div id="kanban-on_hold" class="space-y-3 min-h-[200px] p-2 rounded-xl bg-dark-800/30 border border-dashed border-dark-700/50"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Create/Edit Modal -->
+<div id="experiment-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60 backdrop-blur-sm overflow-y-auto">
+  <div class="bg-dark-900 border border-dark-700 rounded-2xl shadow-2xl w-full max-w-2xl mx-4 my-8 transform scale-95 opacity-0 transition-all duration-200" id="experiment-modal-box">
+    <div class="flex items-center justify-between p-5 border-b border-dark-700/50">
+      <h3 id="experiment-modal-title" class="text-lg font-semibold text-white">Yeni Deney</h3>
+      <button onclick="ExpPage.closeModal()" class="p-1.5 rounded-lg hover:bg-dark-800 transition-colors"><svg class="w-5 h-5 text-dark-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
+    </div>
+    <form id="experiment-form" class="p-5 space-y-4 max-h-[70vh] overflow-y-auto">
+      <input type="hidden" id="exp-id">
+      <div>
+        <label class="block text-xs font-medium text-dark-300 mb-1.5">Proje</label>
+        <select id="exp-project" class="w-full px-3 py-2 rounded-xl bg-dark-800 border border-dark-700 text-sm text-white focus:outline-none focus:border-accent-500/50">
+          <option value="">-- Proje Sec --</option>
+        </select>
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-dark-300 mb-1.5">Baslik *</label>
+        <input type="text" id="exp-title" required class="w-full px-3 py-2 rounded-xl bg-dark-800 border border-dark-700 text-sm text-white focus:outline-none focus:border-accent-500/50">
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-dark-300 mb-1.5">Hipotez</label>
+        <textarea id="exp-hypothesis" rows="2" class="w-full px-3 py-2 rounded-xl bg-dark-800 border border-dark-700 text-sm text-white focus:outline-none focus:border-accent-500/50 resize-none"></textarea>
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-dark-300 mb-1.5">Metodoloji</label>
+        <textarea id="exp-methodology" rows="2" class="w-full px-3 py-2 rounded-xl bg-dark-800 border border-dark-700 text-sm text-white focus:outline-none focus:border-accent-500/50 resize-none"></textarea>
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-xs font-medium text-dark-300 mb-1.5">Durum</label>
+          <select id="exp-status" class="w-full px-3 py-2 rounded-xl bg-dark-800 border border-dark-700 text-sm text-white focus:outline-none focus:border-accent-500/50">
+            <option value="planned">Planli</option>
+            <option value="in_progress">Devam Ediyor</option>
+            <option value="completed">Tamamlandi</option>
+            <option value="failed">Basarisiz</option>
+            <option value="on_hold">Beklemede</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-dark-300 mb-1.5">Oncelik</label>
+          <select id="exp-priority" class="w-full px-3 py-2 rounded-xl bg-dark-800 border border-dark-700 text-sm text-white focus:outline-none focus:border-accent-500/50">
+            <option value="low">Dusuk</option>
+            <option value="medium" selected>Orta</option>
+            <option value="high">Yuksek</option>
+            <option value="critical">Kritik</option>
+          </select>
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-xs font-medium text-dark-300 mb-1.5">Baslangic Tarihi</label>
+          <input type="date" id="exp-start" class="w-full px-3 py-2 rounded-xl bg-dark-800 border border-dark-700 text-sm text-white focus:outline-none focus:border-accent-500/50">
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-dark-300 mb-1.5">Bitis Tarihi</label>
+          <input type="date" id="exp-end" class="w-full px-3 py-2 rounded-xl bg-dark-800 border border-dark-700 text-sm text-white focus:outline-none focus:border-accent-500/50">
+        </div>
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-dark-300 mb-1.5">Arastirmaci</label>
+        <input type="text" id="exp-researcher" class="w-full px-3 py-2 rounded-xl bg-dark-800 border border-dark-700 text-sm text-white focus:outline-none focus:border-accent-500/50">
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-dark-300 mb-1.5">Sonuclar</label>
+        <textarea id="exp-results" rows="2" class="w-full px-3 py-2 rounded-xl bg-dark-800 border border-dark-700 text-sm text-white focus:outline-none focus:border-accent-500/50 resize-none"></textarea>
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-dark-300 mb-1.5">Gozlemler</label>
+        <textarea id="exp-observations" rows="2" class="w-full px-3 py-2 rounded-xl bg-dark-800 border border-dark-700 text-sm text-white focus:outline-none focus:border-accent-500/50 resize-none"></textarea>
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-dark-300 mb-1.5">Etiketler (virgul ile ayirin)</label>
+        <input type="text" id="exp-tags" placeholder="kompozit, test, mekanik" class="w-full px-3 py-2 rounded-xl bg-dark-800 border border-dark-700 text-sm text-white placeholder-dark-500 focus:outline-none focus:border-accent-500/50">
+      </div>
+      <div class="flex gap-3 pt-2">
+        <button type="submit" class="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-accent-600 to-teal-500 text-white text-sm font-medium hover:shadow-lg hover:shadow-accent-500/20 transition-all">Kaydet</button>
+        <button type="button" onclick="ExpPage.closeModal()" class="px-6 py-2.5 rounded-xl bg-dark-800 border border-dark-700 text-gray-300 text-sm hover:bg-dark-700 transition-colors">Iptal</button>
+      </div>
+    </form>
+  </div>
+</div>

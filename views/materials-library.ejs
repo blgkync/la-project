@@ -1,0 +1,166 @@
+<!-- Header -->
+<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+  <div>
+    <h1 class="text-xl font-bold text-white">Malzeme Kutuphanesi</h1>
+    <p class="text-sm text-dark-400 mt-1">Laboratuvar malzemelerini yonetin ve formulasyonlarda kullanin</p>
+  </div>
+  <div class="flex gap-2">
+    <button onclick="MatLibPage.showImportModal()" class="flex items-center gap-2 px-4 py-2 rounded-xl bg-dark-800 border border-dark-700 text-sm text-gray-300 hover:bg-dark-700 transition-colors">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+      Excel'den Ice Aktar
+    </button>
+    <button onclick="MatLibPage.showCreateModal()" class="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-accent-600 to-teal-500 text-white text-sm font-medium shadow-lg shadow-accent-500/20 hover:shadow-accent-500/40 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+      Yeni Malzeme
+    </button>
+  </div>
+</div>
+
+<!-- Filters -->
+<div class="flex flex-wrap gap-3 mb-6">
+  <select id="filter-category" onchange="MatLibPage.load()" class="px-3 py-2 rounded-xl bg-dark-800 border border-dark-700 text-sm text-gray-300 focus:outline-none focus:border-accent-500/50">
+    <option value="">Tum Kategoriler</option>
+    <option value="toz">Toz</option>
+    <option value="polimer">Polimer</option>
+    <option value="kimyasal">Kimyasal</option>
+    <option value="cozucu">Cozucu</option>
+    <option value="katki">Katki</option>
+    <option value="dolgu">Dolgu</option>
+    <option value="diger">Diger</option>
+  </select>
+  <select id="filter-active" onchange="MatLibPage.load()" class="px-3 py-2 rounded-xl bg-dark-800 border border-dark-700 text-sm text-gray-300 focus:outline-none focus:border-accent-500/50">
+    <option value="1">Aktif</option>
+    <option value="">Tumu</option>
+    <option value="0">Pasif</option>
+  </select>
+  <div class="relative flex-1 min-w-[200px]">
+    <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-dark-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+    <input type="text" id="filter-search" placeholder="Malzeme ara..." oninput="MatLibPage._debouncedSearch()" class="w-full pl-9 pr-3 py-2 rounded-xl bg-dark-800 border border-dark-700 text-sm text-gray-300 placeholder-dark-400 focus:outline-none focus:border-accent-500/50">
+  </div>
+</div>
+
+<!-- Stats -->
+<div id="mat-stats" class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3 mb-6"></div>
+
+<!-- Table -->
+<div class="rounded-2xl bg-dark-900/80 border border-dark-700/50 overflow-hidden">
+  <div class="overflow-x-auto">
+    <table class="w-full text-sm">
+      <thead>
+        <tr class="border-b border-dark-700/50">
+          <th class="text-left px-4 py-3 text-xs font-semibold text-dark-400 uppercase tracking-wider">Ad</th>
+          <th class="text-left px-4 py-3 text-xs font-semibold text-dark-400 uppercase tracking-wider">Kategori</th>
+          <th class="text-left px-4 py-3 text-xs font-semibold text-dark-400 uppercase tracking-wider">Birim</th>
+          <th class="text-left px-4 py-3 text-xs font-semibold text-dark-400 uppercase tracking-wider">Tedarikcí</th>
+          <th class="text-left px-4 py-3 text-xs font-semibold text-dark-400 uppercase tracking-wider">Maliyet</th>
+          <th class="text-left px-4 py-3 text-xs font-semibold text-dark-400 uppercase tracking-wider">Durum</th>
+          <th class="text-right px-4 py-3 text-xs font-semibold text-dark-400 uppercase tracking-wider">Islemler</th>
+        </tr>
+      </thead>
+      <tbody id="mat-table-body" class="divide-y divide-dark-700/30">
+        <tr><td colspan="7" class="px-4 py-8 text-center text-dark-400">Yukleniyor...</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Create/Edit Modal -->
+<div id="mat-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60 backdrop-blur-sm overflow-y-auto">
+  <div class="bg-dark-900 border border-dark-700 rounded-2xl shadow-2xl w-full max-w-lg mx-4 my-8 transform scale-95 opacity-0 transition-all duration-200" id="mat-modal-box">
+    <div class="flex items-center justify-between p-5 border-b border-dark-700/50">
+      <h3 id="mat-modal-title" class="text-lg font-semibold text-white">Yeni Malzeme</h3>
+      <button onclick="MatLibPage.closeModal()" class="p-1.5 rounded-lg hover:bg-dark-800 transition-colors"><svg class="w-5 h-5 text-dark-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
+    </div>
+    <form id="mat-form" onsubmit="MatLibPage.save(event)" class="p-5 space-y-4 max-h-[70vh] overflow-y-auto">
+      <input type="hidden" id="mat-id">
+      <div>
+        <label class="block text-xs font-medium text-dark-300 mb-1.5">Malzeme Adi *</label>
+        <input type="text" id="mat-name" required class="w-full px-3 py-2 rounded-xl bg-dark-800 border border-dark-700 text-sm text-white focus:outline-none focus:border-accent-500/50">
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-xs font-medium text-dark-300 mb-1.5">Kategori</label>
+          <select id="mat-category" class="w-full px-3 py-2 rounded-xl bg-dark-800 border border-dark-700 text-sm text-white focus:outline-none focus:border-accent-500/50">
+            <option value="toz">Toz</option>
+            <option value="polimer">Polimer</option>
+            <option value="kimyasal">Kimyasal</option>
+            <option value="cozucu">Cozucu</option>
+            <option value="katki">Katki</option>
+            <option value="dolgu">Dolgu</option>
+            <option value="diger">Diger</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-dark-300 mb-1.5">Birim</label>
+          <select id="mat-unit" class="w-full px-3 py-2 rounded-xl bg-dark-800 border border-dark-700 text-sm text-white focus:outline-none focus:border-accent-500/50">
+            <option value="g">g</option>
+            <option value="ml">ml</option>
+            <option value="phr">phr</option>
+            <option value="mol">mol</option>
+            <option value="kg">kg</option>
+            <option value="L">L</option>
+          </select>
+        </div>
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-dark-300 mb-1.5">Alt Kategori</label>
+        <input type="text" id="mat-subcategory" class="w-full px-3 py-2 rounded-xl bg-dark-800 border border-dark-700 text-sm text-white focus:outline-none focus:border-accent-500/50">
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-xs font-medium text-dark-300 mb-1.5">Tedarikci</label>
+          <input type="text" id="mat-supplier" class="w-full px-3 py-2 rounded-xl bg-dark-800 border border-dark-700 text-sm text-white focus:outline-none focus:border-accent-500/50">
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-dark-300 mb-1.5">CAS Numarasi</label>
+          <input type="text" id="mat-cas" class="w-full px-3 py-2 rounded-xl bg-dark-800 border border-dark-700 text-sm text-white focus:outline-none focus:border-accent-500/50">
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-xs font-medium text-dark-300 mb-1.5">Yogunluk (g/cm3)</label>
+          <input type="number" step="0.001" id="mat-density" class="w-full px-3 py-2 rounded-xl bg-dark-800 border border-dark-700 text-sm text-white focus:outline-none focus:border-accent-500/50">
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-dark-300 mb-1.5">Birim Maliyet (TL)</label>
+          <input type="number" step="0.01" id="mat-cost" class="w-full px-3 py-2 rounded-xl bg-dark-800 border border-dark-700 text-sm text-white focus:outline-none focus:border-accent-500/50">
+        </div>
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-dark-300 mb-1.5">Aciklama</label>
+        <textarea id="mat-description" rows="2" class="w-full px-3 py-2 rounded-xl bg-dark-800 border border-dark-700 text-sm text-white focus:outline-none focus:border-accent-500/50 resize-none"></textarea>
+      </div>
+      <div class="flex gap-3 pt-2">
+        <button type="submit" class="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-accent-600 to-teal-500 text-white text-sm font-medium hover:shadow-lg hover:shadow-accent-500/20 transition-all">Kaydet</button>
+        <button type="button" onclick="MatLibPage.closeModal()" class="px-6 py-2.5 rounded-xl bg-dark-800 border border-dark-700 text-gray-300 text-sm hover:bg-dark-700 transition-colors">Iptal</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Import Modal -->
+<div id="import-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60 backdrop-blur-sm overflow-y-auto">
+  <div class="bg-dark-900 border border-dark-700 rounded-2xl shadow-2xl w-full max-w-2xl mx-4 my-8 transform scale-95 opacity-0 transition-all duration-200" id="import-modal-box">
+    <div class="flex items-center justify-between p-5 border-b border-dark-700/50">
+      <h3 class="text-lg font-semibold text-white">Toplu Malzeme Iceri Aktar</h3>
+      <button onclick="MatLibPage.closeImportModal()" class="p-1.5 rounded-lg hover:bg-dark-800 transition-colors"><svg class="w-5 h-5 text-dark-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
+    </div>
+    <div class="p-5 space-y-4">
+      <p class="text-xs text-dark-400">Her satira bir malzeme yazin. Tab veya virgul ile ayirin: <span class="text-accent-400 font-mono">Ad, Kategori, Birim, Tedarikci</span></p>
+      <textarea id="import-data" rows="8" placeholder="Aluminyum Oksit, toz, g, Sigma-Aldrich&#10;Epoksi Recine, polimer, g, Huntsman&#10;DMF, cozucu, ml, Merck" class="w-full px-3 py-2 rounded-xl bg-dark-800 border border-dark-700 text-sm text-white font-mono focus:outline-none focus:border-accent-500/50 resize-none"></textarea>
+      <div id="import-preview" class="hidden">
+        <p class="text-xs font-medium text-dark-300 mb-2">Onizleme:</p>
+        <div class="max-h-48 overflow-y-auto rounded-xl bg-dark-800/50 border border-dark-700/50">
+          <table class="w-full text-xs">
+            <thead><tr class="border-b border-dark-700/50"><th class="px-3 py-2 text-left text-dark-400">Ad</th><th class="px-3 py-2 text-left text-dark-400">Kategori</th><th class="px-3 py-2 text-left text-dark-400">Birim</th><th class="px-3 py-2 text-left text-dark-400">Tedarikci</th></tr></thead>
+            <tbody id="import-preview-body"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="flex gap-3">
+        <button onclick="MatLibPage.previewImport()" class="flex-1 py-2.5 rounded-xl bg-dark-800 border border-dark-700 text-gray-300 text-sm hover:bg-dark-700 transition-colors">Onizle</button>
+        <button onclick="MatLibPage.executeImport()" id="import-execute-btn" class="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-accent-600 to-teal-500 text-white text-sm font-medium hover:shadow-lg hover:shadow-accent-500/20 transition-all">Ice Aktar</button>
+      </div>
+    </div>
+  </div>
+</div>

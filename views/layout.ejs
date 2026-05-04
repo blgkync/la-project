@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="tr" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %> | LA Project</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            dark: { 50:'#f0f4f8', 100:'#d9e2ec', 200:'#bcccdc', 300:'#9fb3c8', 400:'#829ab1', 500:'#627d98', 600:'#486581', 700:'#334e68', 800:'#243b53', 900:'#102a43', 950:'#0a1929' },
+            accent: { 50:'#effcf6', 100:'#c6f7e2', 200:'#8eedc7', 300:'#65d6ad', 400:'#3ebd93', 500:'#27ab83', 600:'#199473', 700:'#147d64', 800:'#0c6b58', 900:'#014d40' }
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace']
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="/css/app.css">
+</head>
+<body class="bg-dark-950 text-gray-200 font-sans min-h-screen flex">
+
+  <%- include('partials/sidebar', { currentPath }) %>
+
+  <div id="main-wrapper" class="flex-1 ml-64 flex flex-col min-h-screen transition-all duration-300">
+    <%- include('partials/header', { title }) %>
+
+    <main id="page-content" class="flex-1 p-6 pt-20 overflow-auto">
+      <%- include(page) %>
+    </main>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toast-container" class="fixed top-4 right-4 z-[9999] flex flex-col gap-3 pointer-events-none"></div>
+
+  <!-- Confirm Modal -->
+  <div id="confirm-modal" class="fixed inset-0 z-[9998] hidden items-center justify-center bg-black/60 backdrop-blur-sm">
+    <div class="bg-dark-900 border border-dark-700 rounded-2xl shadow-2xl p-6 w-full max-w-md mx-4 transform scale-95 opacity-0 transition-all duration-200" id="confirm-modal-box">
+      <h3 id="confirm-modal-title" class="text-lg font-semibold text-white mb-2">Emin misiniz?</h3>
+      <p id="confirm-modal-message" class="text-gray-400 mb-6">Bu islemi geri alamazsiniz.</p>
+      <div class="flex gap-3 justify-end">
+        <button onclick="LA.closeConfirm()" class="px-4 py-2 rounded-xl bg-dark-800 border border-dark-600 text-gray-300 hover:bg-dark-700 transition-colors">Iptal</button>
+        <button id="confirm-modal-action" class="px-4 py-2 rounded-xl bg-red-600 text-white hover:bg-red-700 transition-colors">Sil</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lightbox Modal -->
+  <div id="lightbox-modal" class="fixed inset-0 z-[9997] hidden items-center justify-center bg-black/90 backdrop-blur-sm">
+    <button onclick="LA.closeLightbox()" class="absolute top-4 right-4 p-2 rounded-lg bg-dark-800/80 text-white hover:bg-dark-700 transition-colors z-10">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+    </button>
+    <button onclick="LA.lightboxPrev()" class="absolute left-4 top-1/2 -translate-y-1/2 p-2 rounded-lg bg-dark-800/80 text-white hover:bg-dark-700 transition-colors z-10">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+    </button>
+    <button onclick="LA.lightboxNext()" class="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-lg bg-dark-800/80 text-white hover:bg-dark-700 transition-colors z-10">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+    </button>
+    <div class="max-w-5xl max-h-[90vh] p-4">
+      <img id="lightbox-image" src="" alt="" class="max-w-full max-h-[80vh] object-contain rounded-lg shadow-2xl">
+      <p id="lightbox-caption" class="text-center text-sm text-gray-400 mt-3"></p>
+    </div>
+  </div>
+
+  <script src="/js/app.js"></script>
+  <% if (page === 'dashboard') { %><script src="/js/dashboard.js"></script><% } %>
+  <% if (page === 'projects') { %><script src="/js/projects.js"></script><% } %>
+  <% if (page === 'project-detail') { %><script src="/js/project-detail.js"></script><% } %>
+  <% if (page === 'experiments') { %><script src="/js/experiments.js"></script><% } %>
+  <% if (page === 'experiment-detail') { %><script src="/js/experiment-detail.js"></script><% } %>
+  <% if (page === 'calendar') { %><script src="/js/calendar.js"></script><% } %>
+  <% if (page === 'workpackages') { %><script src="/js/workpackages.js"></script><% } %>
+  <% if (page === 'notebook') { %><script src="/js/notebook.js"></script><% } %>
+  <% if (page === 'equipment') { %><script src="/js/equipment.js"></script><% } %>
+  <% if (page === 'reports') { %><script src="/js/reports.js"></script><% } %>
+  <% if (page === 'formulations') { %><script src="/js/formulations.js"></script><% } %>
+  <% if (page === 'formulation-compare') { %><script src="/js/formulation-compare.js"></script><% } %>
+  <% if (page === 'materials-library') { %><script src="/js/materials-library.js"></script><% } %>
+</body>
+</html>

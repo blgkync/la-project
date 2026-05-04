@@ -1,0 +1,101 @@
+<!-- Header -->
+<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+  <div>
+    <h1 class="text-xl font-bold text-white">Raporlar</h1>
+    <p class="text-sm text-dark-400 mt-1">Proje ozet raporlari ve istatistikler</p>
+  </div>
+  <button onclick="RptPage.print()" class="flex items-center gap-2 px-4 py-2 rounded-xl bg-dark-800 border border-dark-700 text-sm text-gray-300 hover:bg-dark-700 transition-colors">
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+    Yazdir
+  </button>
+</div>
+
+<!-- Filters -->
+<div class="flex flex-wrap gap-3 mb-6">
+  <div>
+    <label class="block text-xs text-dark-400 mb-1">Baslangic</label>
+    <input type="date" id="rpt-start" class="px-3 py-2 rounded-xl bg-dark-800 border border-dark-700 text-sm text-white focus:outline-none focus:border-accent-500/50">
+  </div>
+  <div>
+    <label class="block text-xs text-dark-400 mb-1">Bitis</label>
+    <input type="date" id="rpt-end" class="px-3 py-2 rounded-xl bg-dark-800 border border-dark-700 text-sm text-white focus:outline-none focus:border-accent-500/50">
+  </div>
+  <div class="flex items-end">
+    <button onclick="RptPage.generate()" class="px-4 py-2 rounded-xl bg-accent-600 text-white text-sm font-medium hover:bg-accent-700 transition-colors">Rapor Olustur</button>
+  </div>
+</div>
+
+<!-- Report Content -->
+<div id="report-content" class="print-area space-y-6">
+  <!-- Summary Stats -->
+  <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+    <div class="rounded-2xl bg-dark-900/80 border border-dark-700/50 p-4 text-center">
+      <p class="text-xs text-dark-400">Toplam Deney</p>
+      <p id="rpt-exp-total" class="text-2xl font-bold text-white mt-1">--</p>
+    </div>
+    <div class="rounded-2xl bg-dark-900/80 border border-dark-700/50 p-4 text-center">
+      <p class="text-xs text-dark-400">IP Ilerleme</p>
+      <p id="rpt-wp-progress" class="text-2xl font-bold text-accent-400 mt-1">--%</p>
+    </div>
+    <div class="rounded-2xl bg-dark-900/80 border border-dark-700/50 p-4 text-center">
+      <p class="text-xs text-dark-400">Lab Kayitlari</p>
+      <p id="rpt-entries-total" class="text-2xl font-bold text-white mt-1">--</p>
+    </div>
+    <div class="rounded-2xl bg-dark-900/80 border border-dark-700/50 p-4 text-center">
+      <p class="text-xs text-dark-400">Toplam Butce</p>
+      <p id="rpt-budget" class="text-2xl font-bold text-white mt-1">--</p>
+    </div>
+  </div>
+
+  <!-- Charts Row -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div class="rounded-2xl bg-dark-900/80 border border-dark-700/50 p-5">
+      <h3 class="text-sm font-semibold text-white mb-4">Deney Durumlari</h3>
+      <div class="h-56"><canvas id="rpt-chart-status"></canvas></div>
+    </div>
+    <div class="rounded-2xl bg-dark-900/80 border border-dark-700/50 p-5">
+      <h3 class="text-sm font-semibold text-white mb-4">Oncelik Dagilimi</h3>
+      <div class="h-56"><canvas id="rpt-chart-priority"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Experiments Table -->
+  <div class="rounded-2xl bg-dark-900/80 border border-dark-700/50 p-5">
+    <h3 class="text-sm font-semibold text-white mb-4">Deneyler Listesi</h3>
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead><tr class="border-b border-dark-700">
+          <th class="text-left py-2 px-3 text-xs text-dark-400 font-medium">Baslik</th>
+          <th class="text-left py-2 px-3 text-xs text-dark-400 font-medium">Durum</th>
+          <th class="text-left py-2 px-3 text-xs text-dark-400 font-medium">Oncelik</th>
+          <th class="text-left py-2 px-3 text-xs text-dark-400 font-medium">Arastirmaci</th>
+          <th class="text-left py-2 px-3 text-xs text-dark-400 font-medium">Tarih</th>
+        </tr></thead>
+        <tbody id="rpt-exp-table"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Work Packages Table -->
+  <div class="rounded-2xl bg-dark-900/80 border border-dark-700/50 p-5">
+    <h3 class="text-sm font-semibold text-white mb-4">Is Paketleri</h3>
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead><tr class="border-b border-dark-700">
+          <th class="text-left py-2 px-3 text-xs text-dark-400 font-medium">No</th>
+          <th class="text-left py-2 px-3 text-xs text-dark-400 font-medium">Baslik</th>
+          <th class="text-left py-2 px-3 text-xs text-dark-400 font-medium">Ilerleme</th>
+          <th class="text-left py-2 px-3 text-xs text-dark-400 font-medium">Butce</th>
+          <th class="text-left py-2 px-3 text-xs text-dark-400 font-medium">Durum</th>
+        </tr></thead>
+        <tbody id="rpt-wp-table"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Low Stock Materials -->
+  <div class="rounded-2xl bg-dark-900/80 border border-dark-700/50 p-5">
+    <h3 class="text-sm font-semibold text-white mb-4">Dusuk Stok Malzemeler</h3>
+    <div id="rpt-low-stock" class="space-y-2"></div>
+  </div>
+</div>
