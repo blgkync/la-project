@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Giris Yap | LA Project</title>
+  <title><%= mode === 'reset' ? 'Sifre Sifirla' : 'Giris Yap' %> | LA Project</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -30,6 +30,7 @@
   </div>
 
   <div class="relative w-full max-w-md mx-4">
+    <!-- Logo -->
     <div class="text-center mb-8">
       <div class="inline-flex w-16 h-16 rounded-2xl bg-gradient-to-br from-accent-500 to-teal-400 items-center justify-center shadow-lg shadow-accent-500/20 mb-4">
         <svg class="w-9 h-9 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg>
@@ -39,34 +40,59 @@
     </div>
 
     <div class="bg-dark-900/80 backdrop-blur-xl border border-dark-700/50 rounded-2xl shadow-2xl p-8">
-      <h2 class="text-lg font-semibold text-white mb-6">Giris Yap</h2>
 
       <% if (error) { %>
-        <div class="mb-4 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
-          <%= error %>
-        </div>
+        <div class="mb-4 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm"><%= error %></div>
+      <% } %>
+      <% if (success) { %>
+        <div class="mb-4 p-3 rounded-xl bg-accent-500/10 border border-accent-500/20 text-accent-400 text-sm"><%= success %></div>
       <% } %>
 
-      <form method="POST" action="/login" class="space-y-5">
-        <div>
-          <label class="block text-xs font-medium text-dark-300 mb-1.5">Kullanici Adi</label>
-          <input type="text" name="username" required autofocus
-            class="w-full px-4 py-3 rounded-xl bg-dark-800/80 border border-dark-700/50 text-sm text-white placeholder-dark-400 focus:outline-none focus:border-accent-500/50 focus:ring-1 focus:ring-accent-500/20 transition-all"
-            placeholder="Kullanici adinizi girin">
+      <% if (mode === 'login') { %>
+        <!-- LOGIN -->
+        <h2 class="text-lg font-semibold text-white mb-6">Giris Yap</h2>
+        <form method="POST" action="/login" class="space-y-5">
+          <div>
+            <label class="block text-xs font-medium text-dark-300 mb-1.5">Kullanici Adi</label>
+            <input type="text" name="username" required autofocus
+              class="w-full px-4 py-3 rounded-xl bg-dark-800/80 border border-dark-700/50 text-sm text-white placeholder-dark-400 focus:outline-none focus:border-accent-500/50 focus:ring-1 focus:ring-accent-500/20 transition-all"
+              placeholder="Kullanici adinizi girin">
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-dark-300 mb-1.5">Sifre</label>
+            <input type="password" name="password" required
+              class="w-full px-4 py-3 rounded-xl bg-dark-800/80 border border-dark-700/50 text-sm text-white placeholder-dark-400 focus:outline-none focus:border-accent-500/50 focus:ring-1 focus:ring-accent-500/20 transition-all"
+              placeholder="Sifrenizi girin">
+          </div>
+          <button type="submit"
+            class="w-full py-3 rounded-xl bg-gradient-to-r from-accent-500 to-teal-400 text-white font-semibold text-sm hover:from-accent-600 hover:to-teal-500 transition-all shadow-lg shadow-accent-500/20 hover:shadow-accent-500/40">
+            Giris Yap
+          </button>
+        </form>
+        <div class="mt-5 text-center">
+          <a href="/forgot-password" class="text-xs text-dark-400 hover:text-accent-400 transition-colors">Sifremi Unuttum</a>
         </div>
 
-        <div>
-          <label class="block text-xs font-medium text-dark-300 mb-1.5">Sifre</label>
-          <input type="password" name="password" required
-            class="w-full px-4 py-3 rounded-xl bg-dark-800/80 border border-dark-700/50 text-sm text-white placeholder-dark-400 focus:outline-none focus:border-accent-500/50 focus:ring-1 focus:ring-accent-500/20 transition-all"
-            placeholder="Sifrenizi girin">
+      <% } else if (mode === 'reset') { %>
+        <!-- FORGOT PASSWORD -->
+        <h2 class="text-lg font-semibold text-white mb-2">Sifre Sifirla</h2>
+        <p class="text-xs text-dark-400 mb-6">Kullanici adinizi girin, yonetici tarafindan sifreniz sifirlanacaktir.</p>
+        <form method="POST" action="/forgot-password" class="space-y-5">
+          <div>
+            <label class="block text-xs font-medium text-dark-300 mb-1.5">Kullanici Adi</label>
+            <input type="text" name="username" required autofocus
+              class="w-full px-4 py-3 rounded-xl bg-dark-800/80 border border-dark-700/50 text-sm text-white placeholder-dark-400 focus:outline-none focus:border-accent-500/50 focus:ring-1 focus:ring-accent-500/20 transition-all"
+              placeholder="Kullanici adinizi girin">
+          </div>
+          <button type="submit"
+            class="w-full py-3 rounded-xl bg-gradient-to-r from-accent-500 to-teal-400 text-white font-semibold text-sm hover:from-accent-600 hover:to-teal-500 transition-all shadow-lg shadow-accent-500/20 hover:shadow-accent-500/40">
+            Sifre Sifirlama Talebi Gonder
+          </button>
+        </form>
+        <div class="mt-5 text-center">
+          <a href="/login" class="text-xs text-dark-400 hover:text-accent-400 transition-colors">Giris sayfasina don</a>
         </div>
-
-        <button type="submit"
-          class="w-full py-3 rounded-xl bg-gradient-to-r from-accent-500 to-teal-400 text-white font-semibold text-sm hover:from-accent-600 hover:to-teal-500 transition-all shadow-lg shadow-accent-500/20 hover:shadow-accent-500/40">
-          Giris Yap
-        </button>
-      </form>
+      <% } %>
     </div>
 
     <p class="text-center text-xs text-dark-500 mt-6">DeepTech Engineering - ArGe Lab Yonetimi</p>
